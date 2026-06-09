@@ -1,0 +1,1543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Omni Adventure Engine: Definitive Edition</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Merriweather:ital,wght@0,300;0,700;1,300&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Quicksand:wght@400;600;700&display=swap');
+
+        /* Default Dark Theme variables */
+        :root {
+            --bg-color: #090d16;
+            --text-main: #e2e8f0;
+            --font-main: 'Quicksand', sans-serif;
+            --font-title: 'Cinzel', serif;
+            --accent: #3b82f6;
+            --border-glow: rgba(59, 130, 246, 0.25);
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: var(--font-main);
+            transition: background-color 1s ease, color 1s ease;
+            overflow-x: hidden;
+        }
+
+        /* --- IMMERSIVE DYNAMIC UI THEMES --- */
+        
+        /* 1. Castle Theme */
+        body.theme-castle {
+            --bg-color: #12140e;
+            --text-main: #f3f4f6;
+            --font-main: 'Merriweather', serif;
+            --font-title: 'Cinzel', serif;
+            --accent: #d97706;
+            --border-glow: rgba(217, 119, 6, 0.3);
+        }
+        body.theme-castle .border-decor {
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M10 0 Q 30 50 10 100 M90 0 Q 70 50 90 100' stroke='%234d7c0f' stroke-width='4' fill='none' opacity='0.35'/%3E%3Cpath d='M0 10 Q 50 30 100 10 M0 90 Q 50 70 100 90' stroke='%234d7c0f' stroke-width='4' fill='none' opacity='0.35'/%3E%3C/svg%3E");
+            border-color: #854d0e;
+            border-radius: 4px;
+        }
+
+        /* 2. Space Theme */
+        body.theme-space {
+            --bg-color: #03001e;
+            --text-main: #38bdf8;
+            --font-main: 'Space Mono', monospace;
+            --font-title: 'Space Mono', monospace;
+            --accent: #d946ef;
+            --border-glow: rgba(217, 70, 239, 0.4);
+        }
+        body.theme-space .border-decor {
+            background-image: radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 40px), radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 30px);
+            background-size: 400px 400px, 300px 200px;
+            background-position: 0 0, 50px 70px;
+            border-color: #38bdf8;
+            border-radius: 16px;
+            animation: spaceDrift 120s linear infinite;
+        }
+
+        /* 3. Ocean Theme */
+        body.theme-ocean {
+            --bg-color: #021e33;
+            --text-main: #99f6e4;
+            --font-main: 'Quicksand', sans-serif;
+            --font-title: 'Cinzel', serif;
+            --accent: #14b8a6;
+            --border-glow: rgba(20, 184, 166, 0.4);
+        }
+        body.theme-ocean .border-decor {
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='15' cy='100' r='4' fill='%232dd4bf' opacity='0.15'%3E%3Canimate attributeName='cy' from='100' to='-10' dur='6s' repeatCount='indefinite'/%3E%3C/circle%3E%3Ccircle cx='85' cy='100' r='6' fill='%232dd4bf' opacity='0.2'%3E%3Canimate attributeName='cy' from='100' to='-10' dur='4s' repeatCount='indefinite'/%3E%3C/circle%3E%3C/svg%3E");
+            border-color: #0c4a6e;
+            border-radius: 24px;
+        }
+
+        /* Standardize classes for all 12 other themes */
+        body.theme-jungle { --bg-color: #052e16; --text-main: #f0fdf4; --accent: #22c55e; --font-main: 'Quicksand', sans-serif; --font-title: 'Cinzel', serif; }
+        body.theme-desert { --bg-color: #451a03; --text-main: #fef3c7; --accent: #f59e0b; --font-main: 'Merriweather', serif; --font-title: 'Cinzel', serif; }
+        body.theme-cyber { --bg-color: #0c0a0f; --text-main: #a78bfa; --accent: #06b6d4; --font-main: 'Space Mono', monospace; --font-title: 'Space Mono', monospace; }
+        body.theme-mountain { --bg-color: #0f172a; --text-main: #f8fafc; --accent: #38bdf8; --font-main: 'Quicksand', sans-serif; --font-title: 'Cinzel', serif; }
+        body.theme-micro { --bg-color: #2e1065; --text-main: #fae8ff; --accent: #d946ef; --font-main: 'Space Mono', monospace; --font-title: 'Space Mono', monospace; }
+        body.theme-magic { --bg-color: #1e1b4b; --text-main: #e0e7ff; --accent: #818cf8; --font-main: 'Merriweather', serif; --font-title: 'Cinzel', serif; }
+        body.theme-dino { --bg-color: #1c2e1c; --text-main: #dcfce7; --accent: #16a34a; --font-main: 'Quicksand', sans-serif; --font-title: 'Cinzel', serif; }
+        body.theme-pirate { --bg-color: #1a1625; --text-main: #e2e8f0; --accent: #e11d48; --font-main: 'Merriweather', serif; --font-title: 'Cinzel', serif; }
+        body.theme-volcano { --bg-color: #2d0606; --text-main: #ffedd5; --accent: #f97316; --font-main: 'Quicksand', sans-serif; --font-title: 'Cinzel', serif; }
+        body.theme-sky { --bg-color: #0c2540; --text-main: #e0f2fe; --accent: #0ea5e9; --font-main: 'Quicksand', sans-serif; --font-title: 'Cinzel', serif; }
+        body.theme-candy { --bg-color: #4d0725; --text-main: #fdf2f8; --accent: #f43f5e; --font-main: 'Quicksand', sans-serif; --font-title: 'Cinzel', serif; }
+        body.theme-spooky { --bg-color: #0b0f12; --text-main: #d1d5db; --accent: #f97316; --font-main: 'Merriweather', serif; --font-title: 'Cinzel', serif; }
+
+        @keyframes spaceDrift {
+            from { background-position: 0 0, 50px 70px; }
+            to { background-position: 400px 400px, 350px 270px; }
+        }
+
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .cursor::after {
+            content: '█';
+            animation: blink 0.9s step-start infinite;
+            color: var(--accent);
+            margin-left: 3px;
+        }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        .game-panel {
+            background-color: rgba(9, 13, 22, 0.88);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 10px 40px -10px var(--border-glow);
+        }
+
+        .font-title { font-family: var(--font-title); }
+        .text-accent { color: var(--accent); }
+        .bg-accent { background-color: var(--accent); }
+        .border-accent { border-color: var(--accent); }
+        .hover-border-accent:hover { border-color: var(--accent); }
+
+        /* Custom subtle scrollbar */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 99px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <!-- ================= MAIN HUB / MENU ================= -->
+    <div id="main-menu" class="max-w-5xl w-full game-panel rounded-2xl p-6 md:p-8 flex flex-col gap-6 fade-in relative overflow-hidden">
+        <div class="absolute -right-16 -top-16 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -left-16 -bottom-16 w-48 h-48 bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="text-center">
+            <h1 class="text-3xl md:text-5xl font-title text-accent font-black tracking-widest uppercase">OMNI ENGINE</h1>
+            <p class="text-sm text-slate-400 font-semibold tracking-wide">Multi-Ending Narrative Text-RPG System</p>
+        </div>
+
+        <!-- Dashboard Layout Split -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- Left Panel: Adventures & Settings -->
+            <div class="lg:col-span-8 flex flex-col gap-4">
+                
+                <!-- Step 1: Character Class Selection -->
+                <div class="bg-slate-900/50 rounded-xl p-4 border border-slate-800">
+                    <h3 class="text-xs font-bold text-slate-400 tracking-wider uppercase mb-3 flex items-center gap-2">
+                        <span>🛡️</span> Step 1: Select Hero Archetype
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <!-- Scout -->
+                        <div onclick="selectClass('scout')" id="class-scout" class="cursor-pointer bg-slate-800/40 p-3 rounded-lg border-2 border-transparent hover:border-blue-500/50 transition-all flex flex-col gap-1">
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-blue-400 font-title">Scout</span>
+                                <span class="text-xs text-blue-300 bg-blue-500/10 px-2 py-0.5 rounded-full font-mono">Agile</span>
+                            </div>
+                            <span class="text-xs text-slate-300 mt-1">Movement Energy cost reduced by 25%. Gains +10% to all luck-based checks.</span>
+                        </div>
+                        <!-- Brute -->
+                        <div onclick="selectClass('brute')" id="class-brute" class="cursor-pointer bg-slate-800/40 p-3 rounded-lg border-2 border-transparent hover:border-red-500/50 transition-all flex flex-col gap-1">
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-red-400 font-title">Brute</span>
+                                <span class="text-xs text-red-300 bg-red-500/10 px-2 py-0.5 rounded-full font-mono">+Max Energy</span>
+                            </div>
+                            <span class="text-xs text-slate-300 mt-1">Starts with 140 Max Energy. Can break certain obstacles with direct force.</span>
+                        </div>
+                        <!-- Scholar -->
+                        <div onclick="selectClass('scholar')" id="class-scholar" class="cursor-pointer bg-slate-800/40 p-3 rounded-lg border-2 border-transparent hover:border-emerald-500/50 transition-all flex flex-col gap-1">
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-emerald-400 font-title">Scholar</span>
+                                <span class="text-xs text-emerald-300 bg-emerald-500/10 px-2 py-0.5 rounded-full font-mono">Codex</span>
+                            </div>
+                            <span class="text-xs text-slate-300 mt-1">Starts with 'Ancient Codex' item, unlocking unique lore hints & pathways.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Choose Adventure Realm (Scrollable) -->
+                <div class="bg-slate-900/50 rounded-xl p-4 border border-slate-800">
+                    <h3 class="text-xs font-bold text-slate-400 tracking-wider uppercase mb-3 flex items-center gap-2">
+                        <span>🗺️</span> Step 2: Select Adventure Realm
+                    </h3>
+                    <div class="grid grid-cols-2 md:grid-cols-5 gap-3 max-h-[175px] overflow-y-auto pr-1">
+                        <!-- 15 worlds -->
+                        <div onclick="selectAdventure('castle')" id="card-castle" class="cursor-pointer p-3 bg-slate-800/30 border border-slate-700/50 rounded-lg text-center hover:bg-slate-800/80 transition-all group">
+                            <div class="text-2xl group-hover:scale-110 transition-transform">🏰</div>
+                            <div class="text-xs font-bold mt-1 text-slate-300">Castle</div>
+                        </div>
+                        <div onclick="selectAdventure('space')" id="card-space" class="cursor-pointer p-3 bg-slate-800/30 border border-slate-700/50 rounded-lg text-center hover:bg-slate-800/80 transition-all group">
+                            <div class="text-2xl group-hover:scale-110 transition-transform">🚀</div>
+                            <div class="text-xs font-bold mt-1 text-slate-300">Space</div>
+                        </div>
+                        <div onclick="selectAdventure('ocean')" id="card-ocean" class="cursor-pointer p-3 bg-slate-800/30 border border-slate-700/50 rounded-lg text-center hover:bg-slate-800/80 transition-all group">
+                            <div class="text-2xl group-hover:scale-110 transition-transform">🌊</div>
+                            <div class="text-xs font-bold mt-1 text-slate-300">Ocean</div>
+                        </div>
+                        <div onclick="selectAdventure('jungle')" id="card-jungle" class="cursor-pointer p-3 bg-slate-800/30 border border-slate-700/50 rounded-lg text-center hover:bg-slate-800/80 transition-all group">
+                            <div class="text-2xl group-hover:scale-110 transition-transform">🌴</div>
+                            <div class="text-xs font-bold mt-1 text-slate-300">Jungle</div>
+                        </div>
+                        <div onclick="selectAdventure('desert')" id="card-desert" class="cursor-pointer p-3 bg-slate-800/30 border border-slate-700/50 rounded-lg text-center hover:bg-slate-800/80 transition-all group">
+                            <div class="text-2xl group-hover:scale-110 transition-transform">🏜️</div>
+                            <div class="text-xs font-bold mt-1 text-slate-300">Desert</div>
+                        </div>
+                        <div onclick="selectAdventure('cyber')" id="card-cyber" class="cursor-pointer p-3 bg-slate-800/30 border border-slate-700/50 rounded-lg text-center hover:bg-slate-800/80 transition-all group">
+                            <div class="text-2xl group-hover:scale-110 transition-transform">🏙️</div>
+                            <div class="text-xs font-bold mt-1 text-slate-300">Cyber</div>
+                        </div>
+                        <div onclick="selectAdventure('mountain')" id="card-mountain" class="cursor-pointer p-3 bg-slate-800/30 border border-slate-700/50 rounded-lg text-center hover:bg-slate-800/80 transition-all group">
+                            <div class="text-2xl group-hover:scale-110 transition-transform">🏔️</div>
+                            <div class="text-xs font-bold mt-1 text-slate-300">Mountain</div>
+                        </div>
+                        <div onclick="selectAdventure('micro')" id="card-micro" class="cursor-pointer p-3 bg-slate-800/30 border border-slate-700/50 rounded-lg text-center hover:bg-slate-800/80 transition-all group">
+                            <div class="text-2xl group-hover:scale-110 transition-transform">🔬</div>
+                            <div class="text-xs font-bold mt-1 text-slate-300">Micro</div>
+                        </div>
+                        <div onclick="selectAdventure('magic')" id="card-magic" class="cursor-pointer p-3 bg-slate-800/30 border border-slate-700/50 rounded-lg text-center hover:bg-slate-800/80 transition-all group">
+                            <div class="text-2xl group-hover:scale-110 transition-transform">🧙</div>
+                            <div class="text-xs font-bold mt-1 text-slate-300">Magic</div>
+                        </div>
+                        <div onclick="selectAdventure('dino')" id="card-dino" class="cursor-pointer p-3 bg-slate-800/30 border border-slate-700/50 rounded-lg text-center hover:bg-slate-800/80 transition-all group">
+                            <div class="text-2xl group-hover:scale-110 transition-transform">🦖</div>
+                            <div class="text-xs font-bold mt-1 text-slate-300">Dino</div>
+                        </div>
+                        <div onclick="selectAdventure('pirate')" id="card-pirate" class="cursor-pointer p-3 bg-slate-800/30 border border-slate-700/50 rounded-lg text-center hover:bg-slate-800/80 transition-all group">
+                            <div class="text-2xl group-hover:scale-110 transition-transform">🏴‍☠️</div>
+                            <div class="text-xs font-bold mt-1 text-slate-300">Pirate</div>
+                        </div>
+                        <div onclick="selectAdventure('volcano')" id="card-volcano" class="cursor-pointer p-3 bg-slate-800/30 border border-slate-700/50 rounded-lg text-center hover:bg-slate-800/80 transition-all group">
+                            <div class="text-2xl group-hover:scale-110 transition-transform">🌋</div>
+                            <div class="text-xs font-bold mt-1 text-slate-300">Volcano</div>
+                        </div>
+                        <div onclick="selectAdventure('sky')" id="card-sky" class="cursor-pointer p-3 bg-slate-800/30 border border-slate-700/50 rounded-lg text-center hover:bg-slate-800/80 transition-all group">
+                            <div class="text-2xl group-hover:scale-110 transition-transform">☁️</div>
+                            <div class="text-xs font-bold mt-1 text-slate-300">Sky</div>
+                        </div>
+                        <div onclick="selectAdventure('candy')" id="card-candy" class="cursor-pointer p-3 bg-slate-800/30 border border-slate-700/50 rounded-lg text-center hover:bg-slate-800/80 transition-all group">
+                            <div class="text-2xl group-hover:scale-110 transition-transform">🍬</div>
+                            <div class="text-xs font-bold mt-1 text-slate-300">Candy</div>
+                        </div>
+                        <div onclick="selectAdventure('spooky')" id="card-spooky" class="cursor-pointer p-3 bg-slate-800/30 border border-slate-700/50 rounded-lg text-center hover:bg-slate-800/80 transition-all group">
+                            <div class="text-2xl group-hover:scale-110 transition-transform">👻</div>
+                            <div class="text-xs font-bold mt-1 text-slate-300">Spooky</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Game Length / Time Mode -->
+                <div class="bg-slate-900/50 rounded-xl p-4 border border-slate-800 text-center">
+                    <h3 class="text-xs font-bold text-slate-400 tracking-wider uppercase mb-3 text-left flex items-center gap-2">
+                        <span>⏳</span> Step 3: Choose Narrative Depth
+                    </h3>
+                    <div class="flex justify-center gap-3">
+                        <button onclick="selectTime('1m')" id="btn-1m" class="time-btn flex-1 py-2 rounded-lg bg-slate-800 border-2 border-transparent hover:bg-slate-700 font-bold text-sm transition-all text-slate-300">1 Min (Quick)</button>
+                        <button onclick="selectTime('5m')" id="btn-5m" class="time-btn flex-1 py-2 rounded-lg bg-slate-800 border-2 border-transparent hover:bg-slate-700 font-bold text-sm transition-all text-slate-300">5 Min (Standard)</button>
+                        <button onclick="selectTime('10m')" id="btn-10m" class="time-btn flex-1 py-2 rounded-lg bg-slate-800 border-2 border-transparent hover:bg-slate-700 font-bold text-sm transition-all text-slate-300">10 Min (Epic)</button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Right Panel: Lore Ledger & Audio Settings -->
+            <div class="lg:col-span-4 flex flex-col gap-4">
+                
+                <!-- Lore Book Ledger / Chronicle -->
+                <div class="bg-slate-900/60 rounded-xl p-4 border border-slate-800 flex-grow flex flex-col">
+                    <h3 class="text-xs font-bold text-slate-400 tracking-wider uppercase mb-2 flex items-center justify-between">
+                        <span>📖 Chronicle of Endings</span>
+                        <span id="completion-perc" class="text-accent font-mono">0% Complete</span>
+                    </h3>
+                    <div class="h-2 bg-slate-900 rounded-full mb-4 overflow-hidden border border-slate-800">
+                        <div id="chronicle-bar" class="h-full bg-accent transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                    
+                    <div id="lore-list" class="flex-grow overflow-y-auto max-h-[300px] flex flex-col gap-2 text-xs">
+                        <!-- Dynamically filled with unlocked endings per adventure -->
+                    </div>
+                </div>
+
+                <!-- Audio Settings -->
+                <div class="bg-slate-900/50 rounded-xl p-4 border border-slate-800 flex flex-col gap-2">
+                    <h3 class="text-xs font-bold text-slate-400 tracking-wider uppercase flex items-center justify-between">
+                        <span>🔊 Synthesizer Audio</span>
+                        <button id="sound-toggle" onclick="toggleSound()" class="px-2 py-0.5 bg-red-950/60 hover:bg-red-900/60 border border-red-800 rounded font-mono text-[10px] text-red-200 uppercase transition-all">Muted 🔇</button>
+                    </h3>
+                    <p class="text-[10px] text-slate-400 leading-normal">
+                        No audio files required! Generates soundscapes dynamically using Web Audio API oscillators and filters. Make sure sounds are unmuted to experience.
+                    </p>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="border-t border-slate-800/80 pt-4 flex justify-between items-center">
+            <span class="text-xs text-slate-500">Pressing START unlocks procedural sound.</span>
+            <button onclick="initGame()" id="start-btn" class="px-10 py-3 bg-accent text-slate-950 font-black rounded-lg hover:brightness-110 tracking-wider transition-all shadow-lg shadow-accent/20 font-title pointer-events-none opacity-40">
+                INITIATE MISSION
+            </button>
+        </div>
+
+    </div>
+
+    <!-- ================= GAME PLAYSCREEN ================= -->
+    <div id="game-ui" class="hidden max-w-4xl w-full h-[88vh] flex flex-col relative">
+        <!-- Visual Decor Boundary (Dynamic based on theme) -->
+        <div class="border-decor absolute inset-[-8px] pointer-events-none z-0 border-[6px]"></div>
+
+        <div class="game-panel flex-grow rounded-xl overflow-hidden flex flex-col border border-slate-600/60 z-10 relative">
+            
+            <!-- Play Header: Stats, Location, Audio control -->
+            <header class="bg-black/45 p-4 border-b border-slate-700/60 flex justify-between items-center gap-2 z-10 flex-wrap">
+                <div class="flex items-center gap-2">
+                    <button onclick="quitToMenu()" class="text-xs font-bold px-3 py-1 bg-red-950/60 hover:bg-red-900/60 text-red-200 border border-red-800/80 rounded transition">Abandond Run</button>
+                    <span id="class-tag" class="text-xs font-bold px-2 py-0.5 bg-accent/15 text-accent border border-accent/30 rounded">Class</span>
+                    <span id="location-tracker" class="font-title text-accent font-bold text-sm tracking-wide ml-2">Location Unknown</span>
+                </div>
+                
+                <div class="flex items-center gap-4 text-xs">
+                    <!-- Energy Display -->
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm">⚡</span>
+                        <div class="w-24 h-2.5 bg-slate-900 border border-slate-800 rounded-full overflow-hidden">
+                            <div id="energy-bar" class="h-full bg-accent transition-all duration-300" style="width: 100%;"></div>
+                        </div>
+                        <span id="energy-text" class="font-bold text-slate-300">100/100</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Story & Dynamic Visual Notification Area -->
+            <main class="flex-grow p-6 md:p-8 overflow-y-auto flex flex-col justify-between relative" id="story-container">
+                <div id="notification-area" class="text-center min-h-[20px] text-accent font-bold text-xs tracking-widest uppercase transition-opacity duration-300 opacity-0 mb-2"></div>
+                
+                <!-- Story text dynamic block -->
+                <div class="flex-grow flex flex-col justify-center max-w-2xl mx-auto w-full">
+                    <p id="story-text" class="text-base md:text-lg leading-relaxed text-slate-200 text-center drop-shadow-md">
+                        <!-- Typewriter text -->
+                    </p>
+                </div>
+            </main>
+
+            <!-- Interactive Items Inventory Dock -->
+            <div class="bg-black/55 p-3 border-t border-slate-700/40 z-10 flex flex-col gap-2">
+                <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex justify-between items-center px-1">
+                    <span>🎒 Tactical Inventory (Capacity: 4 Slots)</span>
+                    <span id="inventory-count" class="font-mono text-accent">0 / 4</span>
+                </div>
+                <div id="inventory-dock" class="flex items-center gap-2 overflow-x-auto min-h-[46px] py-1">
+                    <!-- Rendered Interactive item nodes -->
+                    <span class="text-xs text-slate-500 italic px-1">No gear acquired yet...</span>
+                </div>
+            </div>
+
+            <!-- Footer Action Controls (Choices/Narrative Options) -->
+            <footer class="bg-black/75 p-4 md:p-5 border-t border-slate-700/60">
+                <div class="flex justify-between items-center mb-2 h-4">
+                    <span id="time-badge" class="text-[10px] uppercase font-bold text-slate-500 border border-slate-800 px-1.5 py-0.5 rounded">Length: 5M</span>
+                    <button id="skip-btn" onclick="skipTypewriter()" class="text-xs text-slate-400 hover:text-white flex items-center gap-1 font-semibold">Skip Typing ⏭</button>
+                </div>
+                <div id="choices-grid" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <!-- Choices injected here -->
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Lore Card Modal -->
+    <div id="lore-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm transition-all">
+        <div class="max-w-md w-full bg-slate-900 border border-slate-700 p-6 rounded-xl flex flex-col gap-4 shadow-2xl relative">
+            <h4 id="modal-item-name" class="text-xl font-bold font-title text-accent">Item Name</h4>
+            <div class="h-px bg-slate-800"></div>
+            <p id="modal-item-desc" class="text-sm text-slate-300 leading-relaxed">Detailed item narrative goes here.</p>
+            <div class="flex justify-end mt-2">
+                <button onclick="closeLoreModal()" class="px-5 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-lg text-xs font-bold uppercase transition-all text-slate-200">Close Codex</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= GAME ENGINE SCRIPT ================= -->
+    <script>
+        // --- Synthesizer Engine (Self-contained Dynamic Audio) ---
+        class SoundscapeEngine {
+            constructor() {
+                this.ctx = null;
+                this.ambientNode = null;
+                this.ambientGain = null;
+                this.soundEnabled = false;
+                this.waveTypes = {
+                    castle: 'sawtooth',
+                    space: 'sine',
+                    ocean: 'triangle',
+                    jungle: 'sine',
+                    desert: 'triangle',
+                    cyber: 'sawtooth',
+                    mountain: 'sine',
+                    micro: 'sine',
+                    magic: 'triangle',
+                    dino: 'sawtooth',
+                    pirate: 'sawtooth',
+                    volcano: 'triangle',
+                    sky: 'sine',
+                    candy: 'sine',
+                    spooky: 'sawtooth'
+                };
+            }
+
+            init() {
+                if (this.ctx) return;
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                this.ctx = new AudioCtx();
+                this.ambientGain = this.ctx.createGain();
+                this.ambientGain.connect(this.ctx.destination);
+                this.ambientGain.gain.setValueAtTime(0.0, this.ctx.currentTime);
+            }
+
+            playAmbient(theme) {
+                if (!this.soundEnabled || !this.ctx) return;
+                this.stopAmbient();
+
+                // Setup dual-oscillator spacey/drony synthesizer
+                const osc1 = this.ctx.createOscillator();
+                const osc2 = this.ctx.createOscillator();
+                const filter = this.ctx.createBiquadFilter();
+                
+                osc1.type = this.waveTypes[theme] || 'sine';
+                osc2.type = 'sine';
+
+                // Drone pitch depends on theme
+                let baseFreq = 70;
+                if (theme === 'space' || theme === 'cyber') baseFreq = 90;
+                if (theme === 'volcano' || theme === 'dino') baseFreq = 50;
+                if (theme === 'ocean' || theme === 'micro') baseFreq = 60;
+
+                osc1.frequency.value = baseFreq;
+                osc2.frequency.value = baseFreq * 1.5; // Harmonic fifth
+
+                // Resonant lowpass sweep
+                filter.type = 'lowpass';
+                filter.frequency.value = 200;
+                filter.Q.value = 5;
+
+                osc1.connect(filter);
+                osc2.connect(filter);
+                filter.connect(this.ambientGain);
+
+                osc1.start();
+                osc2.start();
+
+                // Store nodes to stop later
+                this.ambientNode = { osc1, osc2, filter };
+
+                // Low Frequency Oscillator (LFO) to swell filter sweeps
+                const lfo = this.ctx.createOscillator();
+                const lfoGain = this.ctx.createGain();
+                lfo.frequency.value = 0.15; // ultra slow
+                lfoGain.gain.value = 120; // range of cutoff sweep
+
+                lfo.connect(lfoGain);
+                lfoGain.connect(filter.frequency);
+                lfo.start();
+                this.ambientNode.lfo = lfo;
+
+                // Slowly ease ambient volume in
+                this.ambientGain.gain.setValueAtTime(0, this.ctx.currentTime);
+                this.ambientGain.gain.linearRampToValueAtTime(0.12, this.ctx.currentTime + 3);
+            }
+
+            stopAmbient() {
+                if (this.ambientNode) {
+                    try {
+                        this.ambientNode.osc1.stop();
+                        this.ambientNode.osc2.stop();
+                        this.ambientNode.lfo.stop();
+                    } catch(e){}
+                    this.ambientNode = null;
+                }
+            }
+
+            setMute(isMuted) {
+                this.soundEnabled = !isMuted;
+                if (this.soundEnabled) {
+                    this.init();
+                    if (this.ctx.state === 'suspended') {
+                        this.ctx.resume();
+                    }
+                    if (gameState.active) {
+                        this.playAmbient(currentAdventure);
+                    }
+                } else {
+                    if (this.ambientGain) {
+                        this.ambientGain.gain.setValueAtTime(0, this.ctx.currentTime);
+                    }
+                    this.stopAmbient();
+                }
+            }
+
+            // Synthesized Sound Effects (RNG Pop, Success Chimes, etc)
+            playSfx(type) {
+                if (!this.soundEnabled || !this.ctx) return;
+                
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                const now = this.ctx.currentTime;
+
+                if (type === 'click') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(440, now);
+                    osc.frequency.exponentialRampToValueAtTime(100, now + 0.08);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+                    osc.start();
+                    osc.stop(now + 0.09);
+                } else if (type === 'success') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(330, now);
+                    osc.frequency.setValueAtTime(440, now + 0.1);
+                    osc.frequency.setValueAtTime(660, now + 0.2);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+                    osc.start();
+                    osc.stop(now + 0.45);
+                } else if (type === 'fail') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(220, now);
+                    osc.frequency.linearRampToValueAtTime(80, now + 0.35);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+                    osc.start();
+                    osc.stop(now + 0.4);
+                } else if (type === 'equip') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(500, now);
+                    osc.frequency.exponentialRampToValueAtTime(1000, now + 0.15);
+                    gain.gain.setValueAtTime(0.12, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+                    osc.start();
+                    osc.stop(now + 0.22);
+                }
+            }
+        }
+
+        const audio = new SoundscapeEngine();
+
+        // --- System Data Models ---
+        const CLASSES = {
+            scout: { name: "Scout", desc: "Energy cost -25%, +10% RNG check bonus.", maxEnergy: 80, perk: "agile" },
+            brute: { name: "Brute", desc: "Starts with 140 Max Energy. Strong block breaker.", maxEnergy: 140, perk: "heavy" },
+            scholar: { name: "Scholar", desc: "Starts with 'Ancient Codex' revealing deep lore insights.", maxEnergy: 100, perk: "wise" }
+        };
+
+        const ITEM_DB = {
+            "Rusty Key 🗝️": "An ancient wrought-iron skeleton key overgrown with moss. Appears to fit heavy-duty lockboxes or interior castle doors.",
+            "Sword ⚔️": "A standard-issue, razor-sharp steel longsword. Lightweight enough to swing, robust enough to splinter stone obstacles.",
+            "Machete 🔪": "A wide-bladed tool commonly used to chop through dense, woody vegetation in equatorial rain forests.",
+            "Sun Medallion 🪙": "A heavy golden disc depicting a blazing star. Emits faint, radiant warmth to the touch, and unlocks ruin chambers.",
+            "Stealth Cloak 🧥": "A high-tech digital fiber weave that bends light particles around your silhouette, masking thermals and visuals.",
+            "Climbing Gear 🧗": "Heavy locking carabiners, sturdy rope, and steel ice axes essential for surviving freezing alpine climbs.",
+            "Enzyme Cutter 🧪": "A miniature concentrated atomic chemical torch capable of slicing organic membranes on the cellular level.",
+            "Moon-Dew 💧": "A rare botanical extract that shimmers cold-blue in direct darkness. Ideal for stabilizing temperamental magic reagents.",
+            "Dino-Bait 🥩": "Pungent fermented meat high in proteins. Emits a smell designed to summon territorial carnivores immediately.",
+            "Skeleton Key 🔑": "A master key constructed of bone. It contains dynamic notches that align with any standard mechanical tumblers.",
+            "Obsidian Boots 🥾": "Heavy thermal-proof footwear lined with crushed obsidian stone. Protects the wearer from blistering geysers and lava flow.",
+            "Mega-Wrench 🔧": "An oversized chrome-alloy torque wrench built to turn locked engine gears on massive mechanical cloud engines.",
+            "Peppermint Raft ⛵": "An inflatable high-buoyancy survival raft covered in a non-stick candy coating, resistant to high viscosity syrups.",
+            "Matches 🕯️": "Self-igniting sulfur tips that stay alight even when exposed to high moisture drafts. Vital to banishing supernatural shadows.",
+            "Ancient Codex 📖": "An encrypted heavy tome bound in leather. Deciphers archaic runic symbols and hidden path indicators across several worlds."
+        };
+
+        // --- Global Engine Core Variables ---
+        let currentAdventure = null;
+        let currentTimeMode = null;
+        let currentClass = null;
+
+        let gameState = {
+            active: false,
+            currentNode: 1,
+            inventory: [],
+            energy: 100,
+            maxEnergy: 100,
+            flags: {}
+        };
+
+        let typingInterval;
+        let currentTextToType = "";
+        let isTyping = false;
+        let callbackAfterTyping = null;
+
+        // Persistent Story Achievements: Holds structured list of unlocked endings (3 endings per adventure: Good, Neutral, Bad)
+        // Array item looks like: "castle_good", "space_bad" etc.
+        let unlockedEndings = JSON.parse(localStorage.getItem('omni_endings')) || [];
+
+        // Dynamic setup for UI
+        window.addEventListener('load', () => {
+            renderChronicle();
+        });
+
+        // --- Core UI Workflows ---
+
+        function selectClass(clsId) {
+            currentClass = clsId;
+            audio.playSfx('click');
+            document.querySelectorAll('[id^="class-"]').forEach(el => el.classList.remove('border-blue-500', 'border-red-500', 'border-emerald-500', 'bg-slate-800'));
+            const focusColor = clsId === 'scout' ? 'border-blue-500' : clsId === 'brute' ? 'border-red-500' : 'border-emerald-500';
+            document.getElementById(`class-${clsId}`).classList.add(focusColor, 'bg-slate-800');
+            checkReadyToStart();
+        }
+
+        function selectAdventure(advId) {
+            currentAdventure = advId;
+            audio.playSfx('click');
+            document.querySelectorAll('[id^="card-"]').forEach(el => el.classList.remove('border-accent', 'bg-slate-800/80'));
+            document.getElementById(`card-${advId}`).classList.add('border-accent', 'bg-slate-800/80');
+            checkReadyToStart();
+        }
+
+        function selectTime(timeId) {
+            currentTimeMode = timeId;
+            audio.playSfx('click');
+            document.querySelectorAll('.time-btn').forEach(btn => btn.classList.remove('border-accent', 'bg-slate-700', 'text-white'));
+            document.getElementById(`btn-${timeId}`).classList.add('border-accent', 'bg-slate-700', 'text-white');
+            checkReadyToStart();
+        }
+
+        function checkReadyToStart() {
+            const startBtn = document.getElementById('start-btn');
+            if (currentAdventure && currentTimeMode && currentClass) {
+                startBtn.classList.remove('opacity-40', 'pointer-events-none');
+            }
+        }
+
+        function toggleSound() {
+            const btn = document.getElementById('sound-toggle');
+            if (btn.innerText.includes('MUTED')) {
+                btn.innerText = 'Active 🔊';
+                btn.classList.replace('bg-red-950/60', 'bg-emerald-950/60');
+                btn.classList.replace('border-red-800', 'border-emerald-800');
+                btn.classList.replace('text-red-200', 'text-emerald-200');
+                audio.setMute(false);
+                audio.playSfx('click');
+            } else {
+                btn.innerText = 'Muted 🔇';
+                btn.classList.replace('bg-emerald-950/60', 'bg-red-950/60');
+                btn.classList.replace('border-emerald-800', 'border-red-800');
+                btn.classList.replace('text-emerald-200', 'text-red-200');
+                audio.setMute(true);
+            }
+        }
+
+        // --- Lore Book Ledger Renderer ---
+        const ALL_ADVENTURES = [
+            { id: 'castle', name: 'The Forgotten Castle' },
+            { id: 'space', name: 'Galactic Rescue' },
+            { id: 'ocean', name: 'Deep Blue Discovery' },
+            { id: 'jungle', name: 'Jungle Canopy' },
+            { id: 'desert', name: 'Sands of Time' },
+            { id: 'cyber', name: 'Neon City Hack' },
+            { id: 'mountain', name: 'Frost Peak Descent' },
+            { id: 'micro', name: 'Quantum Realm' },
+            { id: 'magic', name: 'Wizards Potions' },
+            { id: 'dino', name: 'Jurassic Valley' },
+            { id: 'pirate', name: 'Ghost Ship' },
+            { id: 'volcano', name: 'Magma Core' },
+            { id: 'sky', name: 'Aero Metropolis' },
+            { id: 'candy', name: 'Sugar Rush' },
+            { id: 'spooky', name: 'Whispering Woods' }
+        ];
+
+        function renderChronicle() {
+            const container = document.getElementById('lore-list');
+            container.innerHTML = '';
+            
+            let unlockedCount = 0;
+            const totalPossibleEndings = ALL_ADVENTURES.length * 3; // 3 endings per world
+
+            ALL_ADVENTURES.forEach(adv => {
+                const goodCode = `${adv.id}_good`;
+                const neutralCode = `${adv.id}_neutral`;
+                const badCode = `${adv.id}_bad`;
+
+                const goodUnlocked = unlockedEndings.includes(goodCode);
+                const neutralUnlocked = unlockedEndings.includes(neutralCode);
+                const badUnlocked = unlockedEndings.includes(badCode);
+
+                if (goodUnlocked) unlockedCount++;
+                if (neutralUnlocked) unlockedCount++;
+                if (badUnlocked) unlockedCount++;
+
+                const advItem = document.createElement('div');
+                advItem.className = 'p-2 bg-slate-800/30 rounded border border-slate-800 flex flex-col gap-1';
+                advItem.innerHTML = `
+                    <div class="flex justify-between items-center font-bold text-slate-300">
+                        <span>${adv.name}</span>
+                    </div>
+                    <div class="flex gap-2 text-[9px] mt-1 font-mono uppercase">
+                        <span class="${goodUnlocked ? 'text-emerald-400 font-bold' : 'text-slate-600'}">🏆 Good</span>
+                        <span class="${neutralUnlocked ? 'text-amber-400 font-bold' : 'text-slate-600'}">⚖️ Neutral</span>
+                        <span class="${badUnlocked ? 'text-red-400 font-bold' : 'text-slate-600'}">💀 Bad</span>
+                    </div>
+                `;
+                container.appendChild(advItem);
+            });
+
+            const percentage = Math.round((unlockedCount / totalPossibleEndings) * 100);
+            document.getElementById('completion-perc').innerText = `${percentage}% Complete`;
+            document.getElementById('chronicle-bar').style.width = `${percentage}%`;
+        }
+
+        // --- RPG Gameplay Loops ---
+
+        function initGame() {
+            // Apply theme configuration
+            document.body.className = `min-h-screen flex items-center justify-center p-4 theme-${currentAdventure}`;
+            
+            document.getElementById('main-menu').classList.add('hidden');
+            document.getElementById('game-ui').classList.remove('hidden');
+
+            // Setup customized initial state based on Character Class selection
+            const charSetup = CLASSES[currentClass];
+            gameState = {
+                active: true,
+                currentNode: 1,
+                inventory: [],
+                energy: charSetup.maxEnergy,
+                maxEnergy: charSetup.maxEnergy,
+                flags: {}
+            };
+
+            // Scholar starting perk: Start with Ancient Codex already in bag
+            if (currentClass === 'scholar') {
+                gameState.inventory.push("Ancient Codex 📖");
+            }
+
+            // Setup Header visual tags
+            document.getElementById('class-tag').innerText = charSetup.name;
+            document.getElementById('class-tag').className = `text-xs font-bold px-2 py-0.5 bg-accent/15 text-accent border border-accent/30 rounded uppercase font-mono`;
+            document.getElementById('time-badge').innerText = `Depth: ${currentTimeMode}`;
+
+            audio.init();
+            audio.playAmbient(currentAdventure);
+            updateUI();
+            renderNode(1);
+        }
+
+        function renderNode(nodeId) {
+            const node = storyData[currentAdventure].find(n => n.id === nodeId);
+            if (!node) {
+                console.error("Narrative Node missing!", nodeId);
+                return;
+            }
+
+            gameState.currentNode = nodeId;
+            document.getElementById('location-tracker').innerText = node.location || "Mysterious Place";
+
+            // Process modifiers
+            if (node.energyModifier) {
+                changeEnergy(node.energyModifier);
+            }
+            if (node.giveItem) {
+                giveItem(node.giveItem);
+            }
+            if (node.setFlag) {
+                gameState.flags[node.setFlag] = true;
+            }
+
+            // Hide normal choices while typesetting runs
+            document.getElementById('choices-grid').innerHTML = '';
+
+            // Handle typewriter text synthesis
+            startTypewriter(node.text, () => {
+                renderChoices(node.choices);
+            });
+        }
+
+        function renderChoices(choices) {
+            const grid = document.getElementById('choices-grid');
+            grid.innerHTML = '';
+
+            choices.forEach(choice => {
+                if (evalChoiceRequirement(choice.condition)) {
+                    const btn = document.createElement('button');
+                    
+                    let renderedText = choice.text;
+                    
+                    // Show Scout perk modifications in choice details
+                    if (choice.energyCost) {
+                        let dynamicCost = choice.energyCost;
+                        if (currentClass === 'scout') {
+                            dynamicCost = Math.round(choice.energyCost * 0.75); // Scout passive energy reduction
+                        }
+                        renderedText += ` [-${dynamicCost} ⚡]`;
+                    }
+                    if (choice.rngChance) {
+                        let dynamicRng = choice.rngChance;
+                        if (currentClass === 'scout') {
+                            dynamicRng = Math.min(100, choice.rngChance + 10); // Scout luck passive bonus
+                        }
+                        renderedText = `🎲 [${dynamicRng}%] ${renderedText}`;
+                    }
+                    if (choice.condition?.hasItem) {
+                        renderedText += ` (${choice.condition.hasItem})`;
+                    }
+                    if (choice.condition?.isBruteOnly) {
+                        renderedText = `💪 [Brute Force] ${renderedText}`;
+                    }
+
+                    btn.innerText = renderedText;
+                    btn.className = 'w-full p-3 text-left text-sm rounded-lg bg-black/40 hover:bg-black/80 border border-slate-700 hover:border-accent transition-all duration-200 shadow-md fade-in text-slate-200';
+                    
+                    btn.onclick = () => {
+                        audio.playSfx('click');
+                        
+                        // Deduct energy first if choice demands it
+                        if (choice.energyCost) {
+                            let cost = choice.energyCost;
+                            if (currentClass === 'scout') {
+                                cost = Math.round(cost * 0.75);
+                            }
+                            if (gameState.energy < cost) {
+                                triggerAlertNotification("Exhausted! Not enough energy.");
+                                return;
+                            }
+                            changeEnergy(-cost);
+                        }
+
+                        // Evaluate RNG mechanics
+                        if (choice.rngChance) {
+                            let roll = Math.random() * 100;
+                            let limit = choice.rngChance;
+                            if (currentClass === 'scout') {
+                                limit += 10;
+                            }
+                            if (roll > limit) {
+                                audio.playSfx('fail');
+                                triggerAlertNotification(`Luck failed! Rolled ${Math.floor(roll)} (Target <= ${limit})`);
+                                renderNode(choice.failNode || nodeId);
+                                return;
+                            } else {
+                                audio.playSfx('success');
+                                triggerAlertNotification(`Luck check succeeded!`);
+                            }
+                        }
+
+                        // Resolve dynamic routing based on state / time mode adapters
+                        let nextId = choice.nextNode;
+                        if (typeof nextId === 'function') {
+                            nextId = nextId(gameState, currentTimeMode);
+                        }
+
+                        // Evaluate Ending triggers
+                        if (nextId <= 0) {
+                            triggerEndingResolution(choice.endingCode);
+                            return;
+                        }
+
+                        renderNode(nextId);
+                    };
+
+                    grid.appendChild(btn);
+                }
+            });
+        }
+
+        function evalChoiceRequirement(cond) {
+            if (!cond) return true;
+            if (cond.hasItem && !gameState.inventory.includes(cond.hasItem)) return false;
+            if (cond.isBruteOnly && currentClass !== 'brute') return false;
+            if (cond.hasFlag && !gameState.flags[cond.hasFlag]) return false;
+            return true;
+        }
+
+        // --- Energy Handler ---
+        function changeEnergy(val) {
+            gameState.energy += val;
+            if (gameState.energy > gameState.maxEnergy) {
+                gameState.energy = gameState.maxEnergy;
+            }
+            if (gameState.energy <= 0) {
+                gameState.energy = 0;
+                updateUI();
+                triggerGameOverDeath();
+                return;
+            }
+            updateUI();
+        }
+
+        // --- Inventory Logic & Visual Lore Card Slots ---
+        function giveItem(item) {
+            if (gameState.inventory.length >= 4) {
+                triggerAlertNotification("Inventory pack full! Discarded oldest item.");
+                gameState.inventory.shift(); // Drop first item
+            }
+            gameState.inventory.push(item);
+            audio.playSfx('equip');
+            triggerAlertNotification(`Acquired: ${item}`);
+            updateUI();
+        }
+
+        function updateUI() {
+            // Update health/energy bar
+            const percentage = (gameState.energy / gameState.maxEnergy) * 100;
+            const bar = document.getElementById('energy-bar');
+            bar.style.width = `${percentage}%`;
+            
+            if (percentage <= 25) {
+                bar.classList.add('bg-red-500');
+            } else {
+                bar.classList.remove('bg-red-500');
+            }
+
+            document.getElementById('energy-text').innerText = `${gameState.energy}/${gameState.maxEnergy}`;
+
+            // Render interactive items in the dock
+            const dock = document.getElementById('inventory-dock');
+            dock.innerHTML = '';
+            document.getElementById('inventory-count').innerText = `${gameState.inventory.length} / 4`;
+
+            if (gameState.inventory.length === 0) {
+                dock.innerHTML = `<span class="text-xs text-slate-500 italic px-1">No items in inventory...</span>`;
+                return;
+            }
+
+            gameState.inventory.forEach(item => {
+                const btn = document.createElement('button');
+                btn.className = 'px-3 py-1.5 bg-slate-900 border border-slate-700/80 rounded-lg hover:border-accent text-xs font-bold text-slate-200 shadow transition-all duration-200 flex items-center gap-1.5 font-mono';
+                btn.innerHTML = `${item}`;
+                btn.onclick = () => {
+                    openLoreModal(item);
+                };
+                dock.appendChild(btn);
+            });
+        }
+
+        function openLoreModal(item) {
+            const strippedName = item;
+            const desc = ITEM_DB[item] || "A mysterious object carrying latent utility in specific dimensions.";
+            
+            audio.playSfx('click');
+            document.getElementById('modal-item-name').innerText = strippedName;
+            document.getElementById('modal-item-desc').innerText = desc;
+            document.getElementById('lore-modal').classList.remove('hidden');
+        }
+
+        function closeLoreModal() {
+            audio.playSfx('click');
+            document.getElementById('lore-modal').classList.add('hidden');
+        }
+
+        function triggerAlertNotification(msg) {
+            const notif = document.getElementById('notification-area');
+            notif.innerText = msg;
+            notif.classList.replace('opacity-0', 'opacity-100');
+            setTimeout(() => {
+                notif.classList.replace('opacity-100', 'opacity-0');
+            }, 3000);
+        }
+
+        // --- Typewriter text synthesis engine ---
+        function startTypewriter(text, onComplete) {
+            clearInterval(typingInterval);
+            isTyping = true;
+            currentTextToType = text;
+            callbackAfterTyping = onComplete;
+            document.getElementById('skip-btn').classList.remove('hidden');
+
+            let index = 0;
+            const container = document.getElementById('story-text');
+            container.innerHTML = '<span class="cursor"></span>';
+
+            typingInterval = setInterval(() => {
+                container.innerHTML = text.substring(0, index) + '<span class="cursor"></span>';
+                index++;
+                if (index > text.length) {
+                    finishTypewriter();
+                }
+            }, 18);
+        }
+
+        function skipTypewriter() {
+            if (isTyping) finishTypewriter();
+        }
+
+        function finishTypewriter() {
+            clearInterval(typingInterval);
+            isTyping = false;
+            document.getElementById('story-text').innerHTML = currentTextToType;
+            document.getElementById('skip-btn').classList.add('hidden');
+            if (callbackAfterTyping) callbackAfterTyping();
+        }
+
+        // --- Ending Resolution Engine ---
+        function triggerEndingResolution(endingCode) {
+            isTyping = false;
+            clearInterval(typingInterval);
+            
+            // Log ending in storage arrays
+            if (endingCode && !unlockedEndings.includes(endingCode)) {
+                unlockedEndings.push(endingCode);
+                localStorage.setItem('omni_endings', JSON.stringify(unlockedEndings));
+                renderChronicle();
+            }
+
+            // Display dramatic resolution wrap-up
+            let resolutionText = "\n\n[THE CHRONICLE CLOSES]";
+            audio.playSfx('success');
+            document.getElementById('story-text').innerHTML = `<span class="text-accent font-bold">STORY COMPLETED!</span><br><br>Your decisions have written a definitive resolution into the chronicle. Returning to hub momentarily...`;
+            document.getElementById('choices-grid').innerHTML = '';
+
+            setTimeout(() => {
+                quitToMenu();
+            }, 3500);
+        }
+
+        function triggerGameOverDeath() {
+            isTyping = false;
+            clearInterval(typingInterval);
+            audio.playSfx('fail');
+            
+            // Automatically log the "Bad" ending for the active adventure
+            const badCode = `${currentAdventure}_bad`;
+            if (!unlockedEndings.includes(badCode)) {
+                unlockedEndings.push(badCode);
+                localStorage.setItem('omni_endings', JSON.stringify(unlockedEndings));
+                renderChronicle();
+            }
+
+            document.getElementById('story-text').innerHTML = `<span class="text-red-500 font-black tracking-widest text-xl uppercase">CRITICAL SYSTEM ERROR: MISSION COMPROMISED</span><br><br>Your hero has succumbed to fatigue or injuries, locking in a BAD ending for this adventure path.`;
+            document.getElementById('choices-grid').innerHTML = `
+                <button onclick="quitToMenu()" class="w-full p-4 bg-red-950 hover:bg-red-900 border border-red-800 rounded-lg font-bold font-title">Return to Base Command</button>
+            `;
+        }
+
+        function quitToMenu() {
+            audio.stopAmbient();
+            document.getElementById('game-ui').classList.add('hidden');
+            document.getElementById('main-menu').classList.remove('hidden');
+            document.body.className = "min-h-screen flex items-center justify-center p-4"; // Reset default body background
+        }
+
+        // =========================================================
+        //    THE COMPREHENSIVE 15-WORLD ADVENTURE STORY DATABASE
+        // =========================================================
+        // Structure supports multiple choices adapting explicitly to:
+        // - Time selection mode: 1m, 5m, 10m dynamically changing branches
+        // - Hero Class specific properties (e.g., Scholar having 'Ancient Codex', Brute breaking locks)
+        
+        const storyData = {
+            
+            // 1. THE FORGOTTEN CASTLE
+            castle: [
+                { id: 1, location: "Gates", text: "You stand before the high, vine-choked gates of the Forgotten Castle. The wind howls.", choices: [
+                    { text: "Slide through a structural gap", nextNode: (state, time) => time === '1m' ? 100 : 2 },
+                    { text: "Investigate the collapsed guard tower", nextNode: 3 }
+                ]},
+                { id: 2, location: "Courtyard", text: "Vines creep down ancient masonry. You spot a locked door ahead and a mossy armory on your left.", choices: [
+                    { text: "Use heavy force on the locked door", condition: {isBruteOnly: true}, nextNode: 100 },
+                    { text: "Investigate the armory", nextNode: 3 },
+                    { text: "Climb the facade manually [-30 ⚡]", energyCost: 30, nextNode: 101 }
+                ]},
+                { id: 3, location: "Armory", giveItem: "Rusty Key 🗝️", text: "You rummage through skeletal remains and locate a Rusty Key. The atmosphere feels heavy.", choices: [
+                    { text: "Navigate back to the main door", nextNode: 4 }
+                ]},
+                { id: 4, location: "Locked Door", text: "The grand wooden barrier stands locked. Its keyhole is rusted solid.", choices: [
+                    { text: "Insert the Rusty Key", condition: {hasItem: "Rusty Key 🗝️"}, nextNode: (state, time) => time === '10m' ? 5 : 100 },
+                    { text: "Force the lock mechanically [-25 ⚡]", energyCost: 25, nextNode: 101 }
+                ]},
+                { id: 5, location: "Gargoyle Chamber", text: "An ancient Stone Gargoyle descends, blockading your route into the inner sanctuary!", choices: [
+                    { text: "Engage the monster directly!", rngChance: 40, failNode: 6, nextNode: 100 },
+                    { text: "Use Ancient Codex to pacify the beast", condition: {hasItem: "Ancient Codex 📖"}, nextNode: 100 }
+                ]},
+                { id: 6, location: "Ruins Corner", energyModifier: -40, text: "The gargoyle strikes you into the debris. You barely manage to pull yourself out.", choices: [
+                    { text: "Limp into the Inner Sanctum", nextNode: 101 }
+                ]},
+                // Endings
+                { id: 100, location: "Throne Room", text: "You recover the legendary Crown of Sovereignty perfectly intact! The realm will remember you.", choices: [
+                    { text: "Conclude Record", nextNode: -1, endingCode: "castle_good" }
+                ]},
+                { id: 101, location: "Antechamber", text: "You scrape past with your goal, but suffered severe structural wounds in the collapsing ruins.", choices: [
+                    { text: "Conclude Record", nextNode: -1, endingCode: "castle_neutral" }
+                ]}
+            ],
+
+            // 2. GALACTIC RESCUE
+            space: [
+                { id: 1, location: "Flight Deck", text: "The starship radar reports a distress beacon coming from planetoid Zeta-9. An asteroid field is approaching.", choices: [
+                    { text: "Engage hyperspace leap directly", nextNode: (state, time) => time === '1m' ? 100 : 2 },
+                    { text: "Scan asteroids for materials", nextNode: 3 }
+                ]},
+                { id: 2, location: "Asteroid Field", text: "Massive debris fields force evasive maneuvers.", choices: [
+                    { text: "Punch engines through the field [-20 ⚡]", energyCost: 20, nextNode: 4 },
+                    { text: "Deploy active shielding", condition: {hasItem: "Stealth Cloak 🧥"}, nextNode: 100 }
+                ]},
+                { id: 3, location: "Debris Field", giveItem: "Stealth Cloak 🧥", text: "You retrieve a functioning military Stealth Cloak from an abandoned freighter.", choices: [
+                    { text: "Navigate to landing zone", nextNode: 2 }
+                ]},
+                { id: 4, location: "Atmosphere Descent", text: "High turbulence compromises navigation systems.", choices: [
+                    { text: "Initiate emergency thruster protocol", nextNode: (state, time) => time === '10m' ? 5 : 100 },
+                    { text: "Manual crash land [-35 ⚡]", energyCost: 35, nextNode: 101 }
+                ]},
+                { id: 5, location: "Planet Surface", text: "Savage mechanical scavenger units surround the crash survivors.", choices: [
+                    { text: "Engage defensive laser systems", rngChance: 60, failNode: 6, nextNode: 100 },
+                    { text: "Use brute-force energy overload", condition: {isBruteOnly: true}, nextNode: 100 }
+                ]},
+                { id: 6, location: "Wreckage", energyModifier: -50, text: "The mechanical beasts dismantle your weapon systems before retreating.", choices: [
+                    { text: "Limp to the escape pod", nextNode: 101 }
+                ]},
+                { id: 100, location: "Safe Zone", text: "The survivors are secured safely inside your escape transport. A clean mission success!", choices: [
+                    { text: "Conclude Record", nextNode: -1, endingCode: "space_good" }
+                ]},
+                { id: 101, location: "Damaged Colony", text: "You rescued the target, but your primary starship lies completely destroyed on the surface.", choices: [
+                    { text: "Conclude Record", nextNode: -1, endingCode: "space_neutral" }
+                ]}
+            ],
+
+            // 3. DEEP BLUE DISCOVERY
+            ocean: [
+                { id: 1, location: "Submarine Dock", text: "Your depth gauges are set to maximum. The legendary Pearl of Tides lies in the dark oceanic abyss.", choices: [
+                    { text: "Descend into the Midnight Zone", nextNode: (state, time) => time === '1m' ? 100 : 2 },
+                    { text: "Secure equipment compartment", nextNode: 3 }
+                ]},
+                { id: 2, location: "Abyss Trench", text: "Crushing pressure threatens submarine hulls. An ancient glowing monolith blocks your path.", choices: [
+                    { text: "Decipher mysterious glowing runes", condition: {hasItem: "Ancient Codex 📖"}, nextNode: 100 },
+                    { text: "Push engines past safety guidelines [-30 ⚡]", energyCost: 30, nextNode: 4 }
+                ]},
+                { id: 3, location: "Prep Room", giveItem: "Machete 🔪", text: "You configure your tools and pocket a heavy diving Machete.", choices: [
+                    { text: "Launch into the abyss", nextNode: 2 }
+                ]},
+                { id: 4, location: "Deep Sea Trench", text: "A gigantic bioluminescent squid wraps tentacles around your viewing glass!", choices: [
+                    { text: "Slash at the tentacles with Machete", condition: {hasItem: "Machete 🔪"}, nextNode: (state, time) => time === '10m' ? 5 : 100 },
+                    { text: "Re-route internal hot exhaust to exterior vents", rngChance: 50, failNode: 6, nextNode: 100 }
+                ]},
+                { id: 5, location: "Sunken Temple", text: "An underwater pressure door requires manual crank overrides.", choices: [
+                    { text: "Smash through the seal", condition: {isBruteOnly: true}, nextNode: 100 },
+                    { text: "Perform long mathematical override [-25 ⚡]", energyCost: 25, nextNode: 101 }
+                ]},
+                { id: 6, location: "Flooded Cabin", energyModifier: -45, text: "The sub takes heavy internal damage, breaching secondary dry chambers.", choices: [
+                    { text: "Drag yourself to the artifact room", nextNode: 101 }
+                ]},
+                { id: 100, location: "Sanctum", text: "The radiant Pearl of Tides is recovered! The tides will remain safe.", choices: [
+                    { text: "Conclude Record", nextNode: -1, endingCode: "ocean_good" }
+                ]},
+                { id: 101, location: "Damaged Cockpit", text: "The treasure is secured, but you are stranded inside a rapidly flooding submarine.", choices: [
+                    { text: "Conclude Record", nextNode: -1, endingCode: "ocean_neutral" }
+                ]}
+            ],
+
+            // 4. JUNGLE CANOPY
+            jungle: [
+                { id: 1, location: "Fringe", text: "You must locate the Sun-Lily flower hidden deep inside the emerald wilderness.", choices: [
+                    { text: "Push deep into the canopy", nextNode: (state, time) => time === '1m' ? 100 : 2 },
+                    { text: "Climb high branches to map the area", nextNode: 3 }
+                ]},
+                { id: 2, location: "Deep Woods", text: "Massive thorny vines block the jungle trail ahead.", choices: [
+                    { text: "Chop obstacles clear", condition: {hasItem: "Machete 🔪"}, nextNode: 4 },
+                    { text: "Crawl through dangerous thorns [-20 ⚡]", energyCost: 20, nextNode: 4 }
+                ]},
+                { id: 3, location: "Canopy", giveItem: "Machete 🔪", text: "You discover an explorer's discarded metal Machete in the trees.", choices: [
+                    { text: "Return to the forest floor", nextNode: 2 }
+                ]},
+                { id: 4, location: "Waterfall Valley", text: "A torrential river blocks access to the hidden grove.", choices: [
+                    { text: "Wade across directly", nextNode: (state, time) => time === '10m' ? 5 : 100 },
+                    { text: "Build a crude bridge out of logs", condition: {isBruteOnly: true}, nextNode: 100 }
+                ]},
+                { id: 5, location: "Sacred Grove", text: "A massive, territorial panther steps from the bushes.", choices: [
+                    { text: "Confront the beast manually", rngChance: 50, failNode: 6, nextNode: 100 },
+                    { text: "Distract using jungle meat remnants", nextNode: 101 }
+                ]},
+                { id: 6, location: "Mud Pit", energyModifier: -40, text: "You fall down a muddy embankment, injuring your knee.", choices: [
+                    { text: "Scramble into the grove", nextNode: 101 }
+                ]},
+                { id: 100, location: "Clearing", text: "The luminous Sun-Lily is in your hands! Your village's sickness will be cured.", choices: [
+                    { text: "Conclude Record", nextNode: -1, endingCode: "jungle_good" }
+                ]},
+                { id: 101, location: "Edge of Grove", text: "You found the flower, but suffered deep injuries, and the local fauna is tracking your blood trail.", choices: [
+                    { text: "Conclude Record", nextNode: -1, endingCode: "jungle_neutral" }
+                ]}
+            ],
+
+            // 5. SANDS OF TIME
+            desert: [
+                { id: 1, location: "Sands", text: "The blistering sun drains your energy. The Golden Scarab is inside the pyramid.", choices: [
+                    { text: "Cross the open sands", nextNode: (state, time) => time === '1m' ? 100 : 2 },
+                    { text: "Search the nomad camp", nextNode: 3 }
+                ]},
+                { id: 2, location: "Pyramid", text: "A heavy sandstone dial holds the pyramid door sealed.", choices: [
+                    { text: "Insert Sun Medallion", condition: {hasItem: "Sun Medallion 🪙"}, nextNode: 4 },
+                    { text: "Shatter the hinges with force", condition: {isBruteOnly: true}, nextNode: 100 }
+                ]},
+                { id: 3, location: "Oasis Outpost", giveItem: "Sun Medallion 🪙", text: "You retrieve a ancient golden Sun Medallion from an urn.", choices: [
+                    { text: "Travel to the temple entrance", nextNode: 2 }
+                ]},
+                { id: 4, location: "Tomb Corridors", text: "The corridors feature complex mechanical dart traps.", choices: [
+                    { text: "Navigate traps smoothly [-15 ⚡]", energyCost: 15, nextNode: (state, time) => time === '10m' ? 5 : 100 },
+                    { text: "Evade with agility check", rngChance: 70, failNode: 6, nextNode: 100 }
+                ]},
+                { id: 5, location: "Scarab Vault", text: "The pedestal is guarded by an automated stone sand-golem.", choices: [
+                    { text: "Attack the critical core on its chest", rngChance: 55, failNode: 6, nextNode: 100 },
+                    { text: "Translate golem instructions", condition: {hasItem: "Ancient Codex 📖"}, nextNode: 100 }
+                ]},
+                { id: 6, location: "Ledge Path", energyModifier: -35, text: "Dart darts graze your shoulders. You suffer burning poison.", choices: [
+                    { text: "Push forward into the center room", nextNode: 101 }
+                ]},
+                { id: 100, location: "Heart of Pyramid", text: "The Golden Scarab lies in your hands! Power surges through your veins.", choices: [
+                    { text: "Conclude Record", nextNode: -1, endingCode: "desert_good" }
+                ]},
+                { id: 101, location: "Crumbling Exit", text: "You secured the Scarab, but the tomb has collapsed, sealing you deep underground.", choices: [
+                    { text: "Conclude Record", nextNode: -1, endingCode: "desert_neutral" }
+                ]}
+            ],
+
+            // 6. CYBER HACK
+            cyber: [
+                { id: 1, location: "Underbelly", text: "Your assignment is to inject the data virus into the Megacorp server.", choices: [
+                    { text: "Infiltrate via the ventilation duct", nextNode: (state, time) => time === '1m' ? 100 : 2 },
+                    { text: "Deceive security guard", nextNode: 3 }
+                ]},
+                { id: 2, location: "Laser Grid", text: "A complex array of security lasers blocks the path.", choices: [
+                    { text: "Activate Stealth Cloak", condition: {hasItem: "Stealth Cloak 🧥"}, nextNode: 4 },
+                    { text: "Leap through the moving grid [-30 ⚡]", energyCost: 30, nextNode: 4 }
+                ]},
+                { id: 3, location: "Alleyway", giveItem: "Stealth Cloak 🧥", text: "You discover a military-grade active Stealth Cloak in a dumpster.", choices: [
+                    { text: "Approach the laser grid", nextNode: 2 }
+                ]},
+                { id: 4, location: "Server Node", text: "The security terminal requires advanced decryption keys.", choices: [
+                    { text: "Plug in decoding program", nextNode: (state, time) => time === '10m' ? 5 : 100 },
+                    { text: "Decrypt with Codex clues", condition: {hasItem: "Ancient Codex 📖"}, nextNode: 100 }
+                ]},
+                { id: 5, location: "Core Interface", text: "A security mainframe AI initiates a direct feedback fry loop!", choices: [
+                    { text: "Sever the power cables physically", condition: {isBruteOnly: true}, nextNode: 100 },
+                    { text: "Counter-hack the system defenses", rngChance: 50, failNode: 6, nextNode: 100 }
+                ]},
+                { id: 6, location: "Server Corridor", energyModifier: -40, text: "Feedback pulses fry your cyberware systems, rendering you blind.", choices: [
+                    { text: "Crawl blind to the terminal", nextNode: 101 }
+                ]},
+                { id: 100, location: "Rebel Haven", text: "The virus uploaded flawlessly! Megacorp databases are fully bricked.", choices: [
+                    { text: "Conclude Record", nextNode: -1, endingCode: "cyber_good" }
+                ]},
+                { id: 101, location: "Glitchy Streets", text: "Mission successful, but your brain implants are permanently fried, corrupting your memory.", choices: [
+                    { text: "Conclude Record", nextNode: -1, endingCode: "cyber_neutral" }
+                ]}
+            ],
+
+            // 7. FROST PEAK DESCENT
+            mountain: [
+                { id: 1, location: "Alpine Lodge", text: "A dangerous blizzard is closing in. You must rescue the marooned research team.", choices: [
+                    { text: "Climb the ice wall", nextNode: (state, time) => time === '1m' ? 100 : 2 },
+                    { text: "Search the base camp container", nextNode: 3 }
+                ]},
+                { id: 2, location: "Glacier Gap", text: "A deep crevasse splits the icy path.", choices: [
+                    { text: "Anchor high climbing lines", condition: {hasItem: "Climbing Gear 🧗"}, nextNode: 4 },
+                    { text: "Sprint and jump the gap [-35 ⚡]", energyCost: 35, nextNode: 4 }
+                ]},
+                { id: 3, location: "Supply Box", giveItem: "Climbing Gear 🧗", text: "You discover robust Climbing Gear and ropes.", choices: [
+                    { text: "Ascend toward the glacier gap", nextNode: 2 }
+                ]},
+                { id: 4, location: "High Summit", text: "Avalanche warnings sound! Snow begins tumbling down.", choices: [
+                    { text: "Secure yourself to a bedrock spur", nextNode: (state, time) => time === '10m' ? 5 : 100 },
+                    { text: "Outrun the falling snow wave", rngChance: 60, failNode: 6, nextNode: 100 }
+                ]},
+                { id: 5, location: "Cave Overhang", text: "A massive, aggressive yeti stands at the entrance of the rescue shelter.", choices: [
+                    { text: "Smash the cave entrance rocks to block him", condition: {isBruteOnly: true}, nextNode: 100 },
+                    { text: "Sneak around quietly [-15 ⚡]", energyCost: 15, nextNode: 100 }
+                ]},
+                { id: 6, location: "Deep Snowdrift", energyModifier: -40, text: "The avalanche sweeps you down. You climb out with severe hypothermia.", choices: [
+                    { text: "Limp back to the rescue point", nextNode: 101 }
+                ]},
+                { id: 100, location: "Helicopter Deck", text: "The stranded scientists are secured. A warm thermos of tea awaits you.", choices: [
+                    { text: "Conclude Record", nextNode: -1, endingCode: "mountain_good" }
+                ]},
+                { id: 101, location: "Cold Shelter", text: "You rescued the scientists, but frostbite has cost you a limb during the descent.", choices: [
+                    { text: "Conclude Record", nextNode: -1, endingCode: "mountain_neutral" }
+                ]}
+            ],
+
+            // 8. QUANTUM REALM
+            micro: [
+                { id: 1, location: "Lab Chamber", text: "You shrink down to the nano-scale to eradicate an invasive virus from a host cell.", choices: [
+                    { text: "Steer capsule into cellular fluid", nextNode: (state, time) => time === '1m' ? 100 : 2 },
+                    { text: "Access molecular fabricator", nextNode: 3 }
+                ]},
+                { id: 2, location: "Mitochondria", text: "A protective cellular wall restricts access to the infected area.", choices: [
+                    { text: "Activate Enzyme Cutter", condition: {hasItem: "Enzyme Cutter 🧪"}, nextNode: 4 },
+                    { text: "Ram the wall physically [-25 ⚡]", energyCost: 25, nextNode: 4 }
+                ]},
+                { id: 3, location: "Fabricator Room", giveItem: "Enzyme Cutter 🧪", text: "You materialize a targeted chemical chemical cutter.", choices: [
+                    { text: "Dive into the mitochondria", nextNode: 2 }
+                ]},
+                { id: 4, location: "Nucleus Gateway", text: "Security antigens mistake your capsule for a threat.", choices: [
+                    { text: "Engage automated defenses", nextNode: (state, time) => time === '10m' ? 5 : 100 },
+                    { text: "Inject decoy cell DNA indicators", condition: {hasItem: "Ancient Codex 📖"}, nextNode: 100 }
+                ]},
+                { id: 5, location: "Infection Node", text: "The mutating viral core begins releasing corrosive biological enzymes.", choices: [
+                    { text: "Reroute capsule core generator to blast it", rngChance: 70, failNode: 6, nextNode: 100 },
+                    { text: "Initiate maximum structural shield block", condition: {isBruteOnly: true}, nextNode: 100 }
+                ]},
+                { id: 6, location: "Acid Pool", energyModifier: -40, text: "Searing nano-acids melt your outer cockpit. You take damage.", choices: [
+                    { text: "Crawl capsule onto the central virus base", nextNode: 101 }
+                ]},
+                { id: 100, location: "Medical Bay", text: "The virus is neutralized! The patient is restored to health.", choices: [
+                    { text: "Conclude Record", nextNode: -1, endingCode: "micro_good" }
+                ]},
+                { id: 101, location: "Lab Quarantine", text: "You killed the virus, but your capsule remains permanently trapped inside a single cell.", choices: [
+                    { text: "Conclude Record", nextNode: -1, endingCode: "micro_neutral" }
+                ]}
+            ],
+
+            // 9. WIZARDS POTIONS
+            magic: [
+                { id: 1, location: "Gothic Lab", text: "To complete your wizard exam, you must brew the fabled potion of Eternal Light.", choices: [
+                    { text: "Stir the cauldron directly", nextNode: (state, time) => time === '1m' ? 100 : 2 },
+                    { text: "Search the potion ingredient closets", nextNode: 3 }
+                ]},
+                { id: 2, location: "Bubbling Cauldron", text: "The blue liquid bubbles dangerously, requiring a stabilizing fluid.", choices: [
+                    { text: "Add precious Moon-Dew", condition: {hasItem: "Moon-Dew 💧"}, nextNode: 4 },
+                    { text: "Manually balance temperature [-30 ⚡]", energyCost: 30, nextNode: 4 }
+                ]},
+                { id: 3, location: "Locker", giveItem: "Moon-Dew 💧", text: "You locate a vial of shimmering, cold Moon-Dew.", choices: [
+                    { text: "Step up to the cauldron", nextNode: 2 }
+                ]},
+                { id: 4, location: "Exam Floor", text: "A stray summoning ritual summons floating chaotic pixies!", choices: [
+                    { text: "Cast a blanket paralyzing spell", nextNode: (state, time) => time === '10m' ? 5 : 100 },
+                    { text: "Read banishment glyph from Codex", condition: {hasItem: "Ancient Codex 📖"}, nextNode: 100 }
+                ]},
+                { id: 5, location: "The Evaluation", text: "The headmaster wizard enters to perform the final grading.", choices: [
+                    { text: "Present the potion with confidence", rngChance: 65, failNode: 6, nextNode: 100 },
+                    { text: "Improvise magical showmanship", nextNode: 101 }
+                ]},
+                { id: 6, location: "Burnt Lab", energyModifier: -35, text: "The potion explodes, singing your eyebrows and skin.", choices: [
+                    { text: "Present the messy residue", nextNode: 101 }
+                ]},
+                { id: 100, location: "Great Hall", text: "A perfect score! You are awarded the wizard robes.", choices: [
+                    { text: "Conclude Record", nextNode: -1, endingCode: "magic_good" }
+                ]},
+                { id: 101, location: "Quiet Lab", text: "You passed, but your license is restricted due to extensive damage.", choices: [
+                    { text: "Conclude Record", nextNode: -1, endingCode: "magic_neutral" }
+                ]}
+            ],
+
+            // 10. JURASSIC VALLEY
+            dino: [
+                { id: 1, location: "Valley Edge", text: "You need to locate and photograph the elusive T-Rex nesting grounds.", choices: [
+                    { text: "Track the ground tremors", nextNode: (state, time) => time === '1m' ? 100 : 2 },
+                    { text: "Examine cargo truck wreckage", nextNode: 3 }
+                ]},
+                { id: 2, location: "Swamp Mud", text: "The swamp terrain is highly sticky and slow.", choices: [
+                    { text: "Deploy Dino-Bait", condition: {hasItem: "Dino-Bait 🥩"}, nextNode: 4 },
+                    { text: "Trudge forward forcefully [-25 ⚡]", energyCost: 25, nextNode: 4 }
+                ]},
+                { id: 3, location: "Wreckage", giveItem: "Dino-Bait 🥩", text: "You retrieve a container of high-scent Dino-Bait.", choices: [
+                    { text: "Return to swamp trail", nextNode: 2 }
+                ]},
+                { id: 4, location: "Canyon Path", text: "A pack of vicious swift raptors corners you against a cliff!", choices: [
+                    { text: "Fend them off using direct strength", condition: {isBruteOnly: true}, nextNode: 100 },
+                    { text: "Leap across a deep chasm [-30 ⚡]", energyCost: 30, nextNode: (state, time) => time === '10m' ? 5 : 100 }
+                ]},
+                { id: 5, location: "Rex Nest", text: "The gigantic mother T-Rex stands right in front of her eggs.", choices: [
+                    { text: "Take the photograph from grass", rngChance: 60, failNode: 6, nextNode: 100 },
+                    { text: "Use Stealth Cloak to secure snapshot", condition: {hasItem: "Stealth Cloak 🧥"}, nextNode: 100 }
+                ]},
+                { id: 6, location: "River Bed", energyModifier: -40, text: "The Rex spots you! She clips you with her tail, sending you flying.", choices: [
+                    { text: "Crawl away to safety", nextNode: 101 }
+                ]},
+                { id: 100, location: "Press Office", text: "A stunning, national-award winning photo is captured!", choices: [
+                    { text: "Conclude Record", nextNode: -1, endingCode: "dino_good" }
+                ]},
+                { id: 101, location: "Base Camp", text: "You secured a grainy photograph, but your camera was smashed in the escape.", choices: [
+                    { text: "Conclude Record", nextNode: -1, endingCode: "dino_neutral" }
+                ]}
+            ],
+
+            // 11. GHOST SHIP
+            pirate: [
+                { id: 1, location: "Foremast Deck", text: "You crawl onto the ghostly galleon in search of the cursed Golden Compass.", choices: [
+                    { text: "Search the Captain's quarters", nextNode: (state, time) => time === '1m' ? 100 : 2 },
+                    { text: "Investigate the crew quarters", nextNode: 3 }
+                ]},
+                { id: 2, location: "Captain's Cabin", text: "The heavy wooden door is locked with mystical skeletal bone locks.", choices: [
+                    { text: "Insert Skeleton Key", condition: {hasItem: "Skeleton Key 🔑"}, nextNode: 4 },
+                    { text: "Kick the door down with pure force", condition: {isBruteOnly: true}, nextNode: 100 }
+                ]},
+                { id: 3, location: "Quarterdeck", giveItem: "Skeleton Key 🔑", text: "You locate a mystical Skeleton Key under the floorboards.", choices: [
+                    { text: "Approach Captain's quarters", nextNode: 2 }
+                ]},
+                { id: 4, location: "Treasure Hold", text: "The ethereal spirit of the pirate captain emerges to defend his gold!", choices: [
+                    { text: "Parry his attacks manually [-20 ⚡]", energyCost: 20, nextNode: (state, time) => time === '10m' ? 5 : 100 },
+                    { text: "Defeat him with Sword", condition: {hasItem: "Sword ⚔️"}, nextNode: 100 }
+                ]},
+                { id: 5, location: "Cursed Altar", text: "The Golden Compass is bound to the altar via static electricity fields.", choices: [
+                    { text: "Deactivate nodes safely", rngChance: 70, failNode: 6, nextNode: 100 },
+                    { text: "Shatter the altar nodes physically", condition: {isBruteOnly: true}, nextNode: 100 }
+                ]},
+                { id: 6, location: "Sinking Hull", energyModifier: -40, text: "The spirit blasts you with frost, nearly freezing your heart.", choices: [
+                    { text: "Escape onto a rowboat", nextNode: 101 }
+                ]},
+                { id: 100, location: "Open Ocean", text: "You escape safely with the magical Golden Compass! Endless treasure awaits.", choices: [
+                    { text: "Conclude Record", nextNode: -1, endingCode: "pirate_good" }
+                ]},
+                { id: 101, location: "Foggy Shore", text: "You escaped, but you are afflicted with a slow pirate curse.", choices: [
+                    { text: "Conclude Record", nextNode: -1, endingCode: "pirate_neutral" }
+                ]}
+            ],
+
+            // 12. MAGMA CORE
+            volcano: [
+                { id: 1, location: "Magma Crater", text: "Your mission is to plant the thermal dampener into the erupting core.", choices: [
+                    { text: "Enter the lava tube", nextNode: (state, time) => time === '1m' ? 100 : 2 },
+                    { text: "Search scientific depot", nextNode: 3 }
+                ]},
+                { id: 2, location: "Core Tunnel", text: "Blistering ground heat prevents foot travel across the magma crust.", choices: [
+                    { text: "Equip Obsidian Boots", condition: {hasItem: "Obsidian Boots 🥾"}, nextNode: 4 },
+                    { text: "Leap between floating rocks [-40 ⚡]", energyCost: 40, nextNode: 4 }
+                ]},
+                { id: 3, location: "Depot Tent", giveItem: "Obsidian Boots 🥾", text: "You find military insulated Obsidian Boots.", choices: [
+                    { text: "Enter the lava tube", nextNode: 2 }
+                ]},
+                { id: 4, location: "Boiling Chamber", text: "Steam vents flare up blocking your traversal path.", choices: [
+                    { text: "Leap past during an active cycle", nextNode: (state, time) => time === '10m' ? 5 : 100 },
+                    { text: "Use strength to move a heavy basalt rock", condition: {isBruteOnly: true}, nextNode: 100 }
+                ]},
+                { id: 5, location: "Core Interface", text: "A localized fire elemental emerges from the magma!", choices: [
+                    { text: "Strike with high-pressure coolant spray", rngChance: 60, failNode: 6, nextNode: 100 },
+                    { text: "Subdue the beast with ancient incantations", condition: {hasItem: "Ancient Codex 📖"}, nextNode: 100 }
+                ]},
+                { id: 6, location: "Scorched Rock", energyModifier: -45, text: "The elemental strikes you with liquid fire, ruining your systems.", choices: [
+                    { text: "Crawl to the cooling unit button", nextNode: 101 }
+                ]},
+                { id: 100, location: "Outpost", text: "The core is stabilized! You saved the nearby cities from total eruption.", choices: [
+                    { text: "Conclude Record", nextNode: -1, endingCode: "volcano_good" }
+                ]},
+                { id: 101, location: "Ash Plain", text: "The volcano is safe, but you lost all your exploration gear in the lava.", choices: [
+                    { text: "Conclude Record", nextNode: -1, endingCode: "volcano_neutral" }
+                ]}
+            ],
+
+            // 13. AERO METROPOLIS
+            sky: [
+                { id: 1, location: "Sky Docks", text: "The floating city of Aero is losing altitude. You must turn on the master compressor.", choices: [
+                    { text: "Clamber toward the turbine deck", nextNode: (state, time) => time === '1m' ? 100 : 2 },
+                    { text: "Search hangar for diagnostic tools", nextNode: 3 }
+                ]},
+                { id: 2, location: "Turbine Core", text: "The primary starter valve is locked in position due to pressure.", choices: [
+                    { text: "Turn the valve with Mega-Wrench", condition: {hasItem: "Mega-Wrench 🔧"}, nextNode: 4 },
+                    { text: "Smash the starter lever directly", condition: {isBruteOnly: true}, nextNode: 100 }
+                ]},
+                { id: 3, location: "Hangar Bay", giveItem: "Mega-Wrench 🔧", text: "You locate an oversized heavy Mega-Wrench.", choices: [
+                    { text: "Return to the turbine deck", nextNode: 2 }
+                ]},
+                { id: 4, location: "Upper Fans", text: "High hurricane-force wind currents threaten to blow you off the platform.", choices: [
+                    { text: "Tether yourself and advance [-25 ⚡]", energyCost: 25, nextNode: (state, time) => time === '10m' ? 5 : 100 },
+                    { text: "Cross quickly with swift reflex checks", rngChance: 60, failNode: 6, nextNode: 100 }
+                ]},
+                { id: 5, location: "Command Central", text: "A rogue security sky-drone blockades access to the master valve.", choices: [
+                    { text: "Saber the drone power cables", condition: {hasItem: "Sword ⚔️"}, nextNode: 100 },
+                    { text: "Execute critical electronic override", rngChance: 50, failNode: 6, nextNode: 100 }
+                ]},
+                { id: 6, location: "Catwalk Edge", energyModifier: -40, text: "The wind throws you against steel rails, fracturing your ribs.", choices: [
+                    { text: "Drag yourself inside the generator room", nextNode: 101 }
+                ]},
+                { id: 100, location: "City Plaza", text: "The turbines spin! The city rises gracefully back into the bright clouds.", choices: [
+                    { text: "Conclude Record", nextNode: -1, endingCode: "sky_good" }
+                ]},
+                { id: 101, location: "Emergency Pod", text: "Aero is stabilized, but you fell from the catwalk, landing far below on the lowlands.", choices: [
+                    { text: "Conclude Record", nextNode: -1, endingCode: "sky_neutral" }
+                ]}
+            ],
+
+            // 14. SUGAR RUSH
+            candy: [
+                { id: 1, location: "Candy Forest", text: "The cooling plant has failed! You must save the gummy village from melting.", choices: [
+                    { text: "Navigate down the sticky river", nextNode: (state, time) => time === '1m' ? 100 : 2 },
+                    { text: "Check the old gingerbread shed", nextNode: 3 }
+                ]},
+                { id: 2, location: "Caramel River", text: "A highly viscous river of hot caramel blocks progress.", choices: [
+                    { text: "Deploy the Peppermint Raft", condition: {hasItem: "Peppermint Raft ⛵"}, nextNode: 4 },
+                    { text: "Swim through caramel forcefully [-35 ⚡]", energyCost: 35, nextNode: 4 }
+                ]},
+                { id: 3, location: "Shed", giveItem: "Peppermint Raft ⛵", text: "You retrieve an inflatable Peppermint Raft.", choices: [
+                    { text: "Approach the caramel river", nextNode: 2 }
+                ]},
+                { id: 4, location: "Freezer Door", text: "The master thermostat valve is sealed under thick crystallized sugar.", choices: [
+                    { text: "Crack the sugar with heavy force", condition: {isBruteOnly: true}, nextNode: 100 },
+                    { text: "Melt sugar using molecular heat methods [-20 ⚡]", energyCost: 20, nextNode: (state, time) => time === '10m' ? 5 : 100 }
+                ]},
+                { id: 5, location: "Thermostat Room", text: "A grumpy, sour sugar troll blocks access to the thermostat lever.", choices: [
+                    { text: "Bribe the troll with sweet items", rngChance: 70, failNode: 6, nextNode: 100 },
+                    { text: "Use agility to dodge around him", rngChance: 45, failNode: 6, nextNode: 100 }
+                ]},
+                { id: 6, location: "Sticky Floor", energyModifier: -35, text: "The troll traps you in sticky taffy, making movement highly difficult.", choices: [
+                    { text: "Struggle to the switch", nextNode: 101 }
+                ]},
+                { id: 100, location: "Village Center", text: "Cooling systems restored! The gummy bears throw a magnificent festival.", choices: [
+                    { text: "Conclude Record", nextNode: -1, endingCode: "candy_good" }
+                ]},
+                { id: 101, location: "Melting Plaza", text: "The central cooling is active, but half the village melted before activation.", choices: [
+                    { text: "Conclude Record", nextNode: -1, endingCode: "candy_neutral" }
+                ]}
+            ],
+
+            // 15. WHISPERING WOODS
+            spooky: [
+                { id: 1, location: "Forest Edge", text: "The shadows are sentient. You must light the Ever-Lantern to banish the night.", choices: [
+                    { text: "Walk directly into the black woods", nextNode: (state, time) => time === '1m' ? 100 : 2 },
+                    { text: "Investigate an abandoned campground", nextNode: 3 }
+                ]},
+                { id: 2, location: "Misty Grove", text: "The Ever-Lantern sits on a pedestal, but requires matches to activate.", choices: [
+                    { text: "Strike dry Matches", condition: {hasItem: "Matches 🕯️"}, nextNode: 4 },
+                    { text: "Light with magic sparks [-30 ⚡]", energyCost: 30, nextNode: 4 }
+                ]},
+                { id: 3, location: "Campsite", giveItem: "Matches 🕯️", text: "You discover a dry canister of Matches.", choices: [
+                    { text: "Enter the misty grove", nextNode: 2 }
+                ]},
+                { id: 4, location: "Cemetery Path", text: "Sentient dark shadow wraiths rise from the misty ground!", choices: [
+                    { text: "Dispel the darkness using the Ever-Lantern", nextNode: (state, time) => time === '10m' ? 5 : 100 },
+                    { text: "Slash wraiths with your Sword", condition: {hasItem: "Sword ⚔️"}, nextNode: 100 }
+                ]},
+                { id: 5, location: "Heart of Woods", text: "The master Wraith King materializes, draining the ambient warmth from the zone.", choices: [
+                    { text: "Decipher banishment runes", condition: {hasItem: "Ancient Codex 📖"}, nextNode: 100 },
+                    { text: "Hold the line with willpower", rngChance: 55, failNode: 6, nextNode: 100 }
+                ]},
+                { id: 6, location: "Dark Pit", energyModifier: -40, text: "A wraith sweeps through your soul. You feel permanently cold.", choices: [
+                    { text: "Drag yourself to the altar", nextNode: 101 }
+                ]},
+                { id: 100, location: "Bright Glade", text: "The Ever-Lantern blazes with warm light, completely purifying the woods!", choices: [
+                    { text: "Conclude Record", nextNode: -1, endingCode: "spooky_good" }
+                ]},
+                { id: 101, location: "Foggy Clearing", text: "The shadows are pushed back, but the fog remains, leaving the woods permanently eerie.", choices: [
+                    { text: "Conclude Record", nextNode: -1, endingCode: "spooky_neutral" }
+                ]}
+            ]
+        };
+
+    </script>
+</body>
+</html>
