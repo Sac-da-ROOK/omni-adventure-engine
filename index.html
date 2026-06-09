@@ -181,6 +181,39 @@
                     </div>
                 </div>
 
+                <!-- Step 1.5: Choose Companion Ally -->
+                <div class="bg-slate-900/50 rounded-xl p-4 border border-slate-800">
+                    <h3 class="text-xs font-bold text-slate-400 tracking-wider uppercase mb-3 flex items-center gap-2">
+                        <span>🐾</span> Step 1.5: Choose a Companion Ally
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <!-- Ember Drake -->
+                        <div onclick="selectCompanion('drake')" id="comp-drake" class="cursor-pointer bg-slate-800/40 p-3 rounded-lg border-2 border-transparent hover:border-orange-500/50 transition-all flex flex-col gap-1">
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-orange-400 font-title">Ember Drake 🔥</span>
+                                <span class="text-[10px] text-orange-300 bg-orange-500/10 px-2 py-0.5 rounded-full font-mono">Warmth</span>
+                            </div>
+                            <span class="text-xs text-slate-300 mt-1">15% chance to restore +10 Energy on entering any new location.</span>
+                        </div>
+                        <!-- Pixel Bot -->
+                        <div onclick="selectCompanion('bot')" id="comp-bot" class="cursor-pointer bg-slate-800/40 p-3 rounded-lg border-2 border-transparent hover:border-cyan-500/50 transition-all flex flex-col gap-1">
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-cyan-400 font-title">Pixel Bot 🤖</span>
+                                <span class="text-[10px] text-cyan-300 bg-cyan-500/10 px-2 py-0.5 rounded-full font-mono">Scanner</span>
+                            </div>
+                            <span class="text-xs text-slate-300 mt-1">Beeps and warns you if there are secret lock requirements or high-luck paths nearby.</span>
+                        </div>
+                        <!-- Glimmer Turtle -->
+                        <div onclick="selectCompanion('turtle')" id="comp-turtle" class="cursor-pointer bg-slate-800/40 p-3 rounded-lg border-2 border-transparent hover:border-fuchsia-500/50 transition-all flex flex-col gap-1">
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-fuchsia-400 font-title">Glimmer Turtle 🐢</span>
+                                <span class="text-[10px] text-fuchsia-300 bg-fuchsia-500/10 px-2 py-0.5 rounded-full font-mono">Shield</span>
+                            </div>
+                            <span class="text-xs text-slate-300 mt-1">Provides automatic protection, reducing heavy energy penalties (>20) by 5.</span>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Step 2: Choose Adventure Realm (Scrollable) -->
                 <div class="bg-slate-900/50 rounded-xl p-4 border border-slate-800">
                     <h3 class="text-xs font-bold text-slate-400 tracking-wider uppercase mb-3 flex items-center gap-2">
@@ -319,6 +352,7 @@
                 <div class="flex items-center gap-2">
                     <button onclick="quitToMenu()" class="text-xs font-bold px-3 py-1 bg-red-950/60 hover:bg-red-900/60 text-red-200 border border-red-800/80 rounded transition">Abandond Run</button>
                     <span id="class-tag" class="text-xs font-bold px-2 py-0.5 bg-accent/15 text-accent border border-accent/30 rounded">Class</span>
+                    <span id="comp-tag" class="text-xs font-bold px-2 py-0.5 bg-amber-500/15 text-amber-400 border border-amber-500/30 rounded">Companion</span>
                     <span id="location-tracker" class="font-title text-accent font-bold text-sm tracking-wide ml-2">Location Unknown</span>
                 </div>
                 
@@ -545,6 +579,16 @@
                     gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
                     osc.start();
                     osc.stop(now + 0.22);
+                } else if (type === 'comp_active') {
+                    // Unique sci-fi chirp for companion mechanics
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(600, now);
+                    osc.frequency.exponentialRampToValueAtTime(1200, now + 0.08);
+                    osc.frequency.exponentialRampToValueAtTime(800, now + 0.16);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+                    osc.start();
+                    osc.stop(now + 0.22);
                 }
             }
         }
@@ -556,6 +600,12 @@
             scout: { name: "Scout", desc: "Energy cost -25%, +10% RNG check bonus.", maxEnergy: 80, perk: "agile" },
             brute: { name: "Brute", desc: "Starts with 140 Max Energy. Strong block breaker.", maxEnergy: 140, perk: "heavy" },
             scholar: { name: "Scholar", desc: "Starts with 'Ancient Codex' revealing deep lore insights.", maxEnergy: 100, perk: "wise" }
+        };
+
+        const COMPANIONS = {
+            drake: { name: "Ember Drake 🔥", perk: "drake" },
+            bot: { name: "Pixel Bot 🤖", perk: "bot" },
+            turtle: { name: "Glimmer Turtle 🐢", perk: "turtle" }
         };
 
         const ITEM_DB = {
@@ -580,6 +630,7 @@
         let currentAdventure = null;
         let currentTimeMode = null;
         let currentClass = null;
+        let currentCompanion = null;
 
         let gameState = {
             active: false,
@@ -587,6 +638,7 @@
             inventory: [],
             energy: 100,
             maxEnergy: 100,
+            companion: null,
             flags: {}
         };
 
@@ -615,6 +667,15 @@
             checkReadyToStart();
         }
 
+        function selectCompanion(compId) {
+            currentCompanion = compId;
+            audio.playSfx('click');
+            document.querySelectorAll('[id^="comp-"]').forEach(el => el.classList.remove('border-orange-500', 'border-cyan-500', 'border-fuchsia-500', 'bg-slate-800'));
+            const focusColor = compId === 'drake' ? 'border-orange-500' : compId === 'bot' ? 'border-cyan-500' : 'border-fuchsia-500';
+            document.getElementById(`comp-${compId}`).classList.add(focusColor, 'bg-slate-800');
+            checkReadyToStart();
+        }
+
         function selectAdventure(advId) {
             currentAdventure = advId;
             audio.playSfx('click');
@@ -633,7 +694,7 @@
 
         function checkReadyToStart() {
             const startBtn = document.getElementById('start-btn');
-            if (currentAdventure && currentTimeMode && currentClass) {
+            if (currentAdventure && currentTimeMode && currentClass && currentCompanion) {
                 startBtn.classList.remove('opacity-40', 'pointer-events-none');
             }
         }
@@ -732,6 +793,7 @@
                 inventory: [],
                 energy: charSetup.maxEnergy,
                 maxEnergy: charSetup.maxEnergy,
+                companion: currentCompanion,
                 flags: {}
             };
 
@@ -743,6 +805,11 @@
             // Setup Header visual tags
             document.getElementById('class-tag').innerText = charSetup.name;
             document.getElementById('class-tag').className = `text-xs font-bold px-2 py-0.5 bg-accent/15 text-accent border border-accent/30 rounded uppercase font-mono`;
+            
+            const compSetup = COMPANIONS[currentCompanion];
+            document.getElementById('comp-tag').innerText = compSetup.name;
+            document.getElementById('comp-tag').className = `text-xs font-bold px-2 py-0.5 bg-amber-500/15 text-amber-400 border border-amber-500/30 rounded font-mono`;
+            
             document.getElementById('time-badge').innerText = `Depth: ${currentTimeMode}`;
 
             audio.init();
@@ -770,6 +837,28 @@
             }
             if (node.setFlag) {
                 gameState.flags[node.setFlag] = true;
+            }
+
+            // --- Companion Features Interceptions ---
+            
+            // 1. Ember Drake (Warmth Passive recovery logic)
+            if (gameState.companion === 'drake' && nodeId !== 1 && Math.random() < 0.15) {
+                setTimeout(() => {
+                    audio.playSfx('comp_active');
+                    changeEnergy(10);
+                    triggerAlertNotification("🔥 Ember Drake shares its warmth! +10 Energy");
+                }, 1200);
+            }
+
+            // 2. Pixel Bot (Scanning system flags and alternate conditions)
+            if (gameState.companion === 'bot') {
+                const containsSecrets = node.choices.some(choice => choice.condition || choice.rngChance);
+                if (containsSecrets) {
+                    setTimeout(() => {
+                        audio.playSfx('comp_active');
+                        triggerAlertNotification("🤖 Pixel Bot: *BEEP* Scanner detects a high-value item check or lucky path!");
+                    }, 1400);
+                }
             }
 
             // Hide normal choices while typesetting runs
@@ -880,6 +969,13 @@
 
         // --- Energy Handler ---
         function changeEnergy(val) {
+            // Glimmer Turtle passive absorbs high-penalty hits
+            if (val < -20 && gameState.companion === 'turtle') {
+                val += 5;
+                audio.playSfx('comp_active');
+                triggerAlertNotification("🐢 Glimmer Turtle absorbs some of the force! Impact reduced by 5.");
+            }
+
             gameState.energy += val;
             if (gameState.energy > gameState.maxEnergy) {
                 gameState.energy = gameState.maxEnergy;
